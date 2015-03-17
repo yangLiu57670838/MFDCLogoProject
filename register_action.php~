@@ -1,0 +1,94 @@
+<?php
+require "defs.php";
+
+$username = $_GET['username'];
+$email = $_GET['email'];
+$password = $_GET['password'];
+
+if($_GET['longterm'] == 'longterm')
+{
+   $payment = $_GET['payment'];
+}
+else
+{
+    $payment = "onetime";
+}  
+
+
+
+$fname = $_GET['fname'];
+$lname = $_GET['lname'];
+$company = $_GET['company'];
+$phone = $_GET['phone'];
+$country = $_GET['country'];
+$city = $_GET['city'];
+$code = $_GET['code'];
+$address = $_GET['address'];
+$RequireInfo = $_GET['info']; 
+
+
+
+$errors = "";
+
+
+ $created = createAccount($username, $email, $password, $payment, $fname, $lname, $company, $phone, $country, $city, $code, $address, $RequireInfo);
+
+if(!$created)
+{
+   $errors .= " Registration Error.";
+}
+
+if($errors == ""){
+session_start();
+
+$_SESSION['username'] = $username;
+
+$_SESSION['LAST_ACTIVITY'] = time();
+
+
+$safe_email = urlencode($email);
+
+
+//freakmailer may not be suitable, may send to customers as well
+$mailer2 = new FreakMailer();
+ 
+
+$mailer2->Subject = 'Hi, There is a new customer';
+ 
+
+$mailer2->Body = $username . ', Contact: ' . $phone . ', ' . $payment . 'payment customer. Special requirement is: ' . $RequireInfo;
+
+$mailer2->AddAddress('yang.liu9@griffithuni.edu.au', $username);
+
+ 
+if(!$mailer2->Send())
+{
+  $mailer2->ClearAddresses();
+  $mailer2->ClearAttachments();
+  $errors .= "registration is successful, but there is an error occurred while sending email.";
+  
+  header("Location: sign-up-1.html?error=$errors");
+  exit;
+}
+else
+{
+   
+}
+$mailer2->ClearAddresses();
+$mailer2->ClearAttachments();
+
+
+header("Location: *"); 
+exit;
+}
+else{
+
+header("Location: sign-up-1.html?error=$errors");
+exit;
+
+
+}
+
+
+
+?>
